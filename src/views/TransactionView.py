@@ -5,17 +5,17 @@ from flask_sqlalchemy import SQLAlchemy
 from ..models import db
 app = Flask(__name__)
 transaction_api = Blueprint('transaction_api', __name__)
-
+from sqlalchemy import text
 
 @transaction_api.route('/', methods=['GET'])
 # @Auth.auth_required
 def get_all():
-    query = '''
+    query = text('''
     SELECT r."OrgCode", r."HighwayCode", r."PlazaCode", r."SPID", r."RefNo", r."Reason", r."TransactionDateTime", 
            r."ExitLocation", r."TransactionAmount", r."ResponseCode", m."ResponseDesc"
     FROM public."Refund_RefTrx" r
     LEFT JOIN public."Mst_ResponseCode" m ON r."ResponseCode" = m."ResponseCode"
-    '''
+    ''')
     transactions_list = []
     with db.engine.connect() as connection:
         result = connection.execute(query)
@@ -38,10 +38,10 @@ def get_all():
 
 @transaction_api.route('/response_codes', methods=['GET'])
 def get_response_codes():
-    query = '''
+    query = text('''
     SELECT "ResponseCode", "ResponseDesc"
     FROM public."Mst_ResponseCode"
-    '''
+    ''')
     response_codes_list = []
     with db.engine.connect() as connection:
         result = connection.execute(query)
@@ -52,24 +52,24 @@ def get_response_codes():
             }
             response_codes_list.append(response_code)
     return custom_response('success', '', response_codes_list, 200)
-    
+
 def update_response_code(ref_no, response_code):
-    update_query = '''
+    update_query = text('''
     UPDATE public."Refund_RefTrx"
-    SET "ResponseCode" = %s
-    WHERE "RefNo" = %s
-    '''
-    select_query = '''
+    SET "ResponseCode" = :response_code
+    WHERE "RefNo" = :ref_no
+    ''')
+    select_query = text('''
     SELECT r."OrgCode", r."HighwayCode", r."PlazaCode", r."SPID", r."RefNo", r."Reason", r."TransactionDateTime", 
            r."ExitLocation", r."TransactionAmount", r."ResponseCode", m."ResponseDesc"
     FROM public."Refund_RefTrx" r
     LEFT JOIN public."Mst_ResponseCode" m ON r."ResponseCode" = m."ResponseCode"
-    WHERE r."RefNo" = %s
-    '''
+    WHERE r."RefNo" = :ref_no
+    ''')
     try:
         with db.engine.connect() as connection:
-            connection.execute(update_query, (response_code, ref_no))
-            result = connection.execute(select_query, (ref_no,))
+            connection.execute(update_query, {'response_code': response_code, 'ref_no': ref_no})
+            result = connection.execute(select_query, {'ref_no': ref_no})
             updated_transaction = result.fetchone()
             transaction = {
                 "OrgCode": updated_transaction["OrgCode"],
@@ -87,7 +87,7 @@ def update_response_code(ref_no, response_code):
             return {"status": "success", "transaction": transaction}
     except Exception as e:
         return {"status": "failure", "message": str(e)}
-        
+
 @transaction_api.route('/update_response_code', methods=['PUT'])
 def update_response():
     data = request.get_json()
@@ -98,14 +98,16 @@ def update_response():
         return custom_response('success', '', result['transaction'], 200)
     else:
         return custom_response('failure', result['message'], {}, 500)
-    
+
 def custom_response(status, errorMsg, data, status_code):
     """
     Custom Response Function
     """
-    info = {'status': status, 
-            'errorMsg': errorMsg,
-            'data': data}
+    info = {
+        'status': status, 
+        'errorMsg': errorMsg,
+        'data': data
+    }
 
     response = Response(
         mimetype="application/json",
