@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta name="charset" value="utf-8">
+  <title>IAMS API v{{app_version}}</title>
+  <script>
+    function setPos() {
+      // get the value from the input field
+      var inputPosX = document.getElementById("inputPosX").value;
+      var inputPosY = document.getElementById("inputPosY").value;
+
+      // create a JSON object with the input value
+      var data = {
+        "positionx": inputPosX,
+        "positiony": inputPosY
+      };
+
+      // send a POST request to the server with the JSON object
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/camera/set_pos/", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    }
+
+    function sendEmail() {
+      // get the value from the input field
+      var inputEmail = document.getElementById("inputEmail").value;
+      // create a JSON object with the input value
+      var data = {
+        "email": inputEmail,
+      };
+
+      // send a POST request to the server with the JSON object
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/videoEngine/send_test_email/", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    }
+
+    function sendPhone() {
+      var inputPhone = document.getElementById("inputPhone").value;
+      var data = {
+        "phone": inputPhone,
+      };
+
+      // send a POST request to the server with the JSON object
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/videoEngine/send_test_sms/", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    }
+    
+    
+
+    function setMode() {
+      // get the value from the input field
+      var inputMode = document.getElementById("inputMode").value;
+
+      // create a JSON object with the input value
+      var data = {
+        "mode": inputMode,
+      };
+
+      // send a POST request to the server with the JSON object
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/videoEngine/set_mode/", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    }
+
+    function enableScanning(state) {
+      var data = {
+        "state": state,
+      };
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/videoEngine/enable_scanning/", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    }
+
+    function enableTracking(state) {
+      var data = {
+        "state": state,
+      };
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/videoEngine/enable_tracking/", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    }
+    function activateScanning(state) {
+      var data = {
+        "state": state,
+      };
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/videoEngine/activate_scanning/", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    }
+    function changeIoState(dioTyoe, state) {
+      var data = {
+        "type" :dioTyoe,
+        "state": state,
+      };
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/videoEngine/change_io/", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    }
+
+  </script>
+
+
+</head>
+
+<body>
+  <h1>IAMS API Setting</h1>
+  <div> Scanning Mode = {{current_mode}}
+  </div>
+  <div>
+    <form>
+      <label for="inputPosX">Pos X:</label>
+      <input type="text" id="inputPosX" name="inputPosX"><br><br>
+      <label for="inputPosY">Pos Y:</label>
+      <input type="text" id="inputPosY" name="inputPosY"><br><br>
+      <button type="button" onclick="setPos()">Send</button>
+    </form>
+
+    <form action="/api/videoEngine/set_mode" method="post">
+      Change Mode
+      <select id="inputMode" name="inputMode">
+        {% for each in mode_list %}
+        <option value="{{each}}">{{each}}</option>
+        {% endfor %}
+      </select>
+      <button type="button" onclick="setMode()">Send</button>
+    </form>
+    <div>
+      Scanning
+      <button type="button" onclick="enableScanning(true)">Enable</button>
+      <button type="button" onclick="enableScanning(false)">Disable</button>
+    </div>
+    <div>
+      Tracking
+      <button type="button" onclick="enableTracking(true)">Enable</button>
+      <button type="button" onclick="enableTracking(false)">Disable</button>
+    </div>
+
+    <div>
+      Activate 
+      <button type="button" onclick="activateScanning(true)">YES</button>
+      <button type="button" onclick="activateScanning(false)">NO</button>
+    </div>
+
+    <div>
+      SIREN 
+      <button type="button" onclick="changeIoState('siren',true)">ON</button>
+      <button type="button" onclick="changeIoState('siren',false)">OFF</button>
+    </div>
+
+    <div>
+      BEACON 
+      <button type="button" onclick="changeIoState('beacon',true)">ON</button>
+      <button type="button" onclick="changeIoState('beacon',false)">OFF</button>
+    </div>
+
+    <div>
+      JAMMER 
+      <button type="button" onclick="changeIoState('jammer',true)">ON</button>
+      <button type="button" onclick="changeIoState('jammer',false)">OFF</button>
+    </div>
+
+    <form>
+      <label for="inputEmail">Email Address:</label>
+      <input type="text" id="inputEmail" name="inputEmail"><br><br>
+      <button type="button" onclick="sendEmail()">Test Send Email</button>
+    </form>
+
+    <form>
+      <label for="inputPhone">Phone:</label>
+      <input type="text" id="inputPhone" name="inputPhone"><br><br>
+      <button type="button" onclick="sendPhone()">Test Send SMS</button>
+    </form>
+
+
+  </div>
+  <!-- <div>
+    <form action="/setPos" method="post">
+      <p>Pos X <input type = "text" name = "text_posX" /></p>
+      <p>Pos Y <input type = "text" name = "text_posY" /></p>
+      <p>Speed <input type = "text" name = "text_speed" /></p>
+      <p><button class="button execute" name="submit" value="submit">Submit</button></p>
+    </form>    
+  </div> -->
+  <div >
+    <div>
+      <img id="videoElement" src="http://127.0.0.1:5005/video_detection" />
+
+    </div>
+    <div>
+      <img id="videoElement2" src="http://127.0.0.1:5005/video_display" />
+      
+    </div>
+    <!--<img id="videoElement3" src="http://192.168.0.120:5000/video_input_thermal" />
+    <img id="videoElement4" src="http://192.168.0.120:5000/video_output_thermal" /> -->
+  </div>
+</body>
+
+</html>

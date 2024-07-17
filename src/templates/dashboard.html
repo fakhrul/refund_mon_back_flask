@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script>
+
+</script>
+
+<!-- <div><img src="{{url_for('static', filename='kaawal.png')}}" width="100" />
+  <p>DDS Video Analytics Firmware (v.{{app_version}})</p>
+</div> -->
+<p></p>
+<p><strong>FW Version:</strong> {{app_version}} <strong>AI Version:</strong> {{ai_version}}</p>
+
+<div class="columns">
+  <div class="column">
+    <img id="videoElement" src="http://{{request.host}}/api/video" />
+  </div>
+  
+
+</div>
+
+{% endblock %}
