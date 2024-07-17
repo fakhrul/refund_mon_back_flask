@@ -21,17 +21,17 @@ def get_all():
         result = connection.execute(query)
         for row in result:
             transaction = {
-                "OrgCode": row["OrgCode"],
-                "HighwayCode": row["HighwayCode"],
-                "PlazaCode": row["PlazaCode"],
-                "SPID": row["SPID"],
-                "RefNo": row["RefNo"],
-                "Reason": row["Reason"],
-                "TransactionDateTime": row["TransactionDateTime"],
-                "ExitLocation": row["ExitLocation"],
-                "TransactionAmount": row["TransactionAmount"],
-                "ResponseCode": row["ResponseCode"],
-                "ResponseDesc": row["ResponseDesc"]
+                "OrgCode": row[0],
+                "HighwayCode": row[1],
+                "PlazaCode": row[2],
+                "SPID": row[3],
+                "RefNo": row[4],
+                "Reason": row[5],
+                "TransactionDateTime": row[6],
+                "ExitLocation": row[7],
+                "TransactionAmount": row[8],
+                "ResponseCode": row[9],
+                "ResponseDesc": row[10]
             }
             transactions_list.append(transaction)
     return custom_response('success', '', transactions_list, 200)
@@ -47,8 +47,8 @@ def get_response_codes():
         result = connection.execute(query)
         for row in result:
             response_code = {
-                "ResponseCode": row["ResponseCode"],
-                "ResponseDesc": row["ResponseDesc"]
+                "ResponseCode": row[0],
+                "ResponseDesc": row[1]
             }
             response_codes_list.append(response_code)
     return custom_response('success', '', response_codes_list, 200)
@@ -72,17 +72,17 @@ def update_response_code(ref_no, response_code):
             result = connection.execute(select_query, {'ref_no': ref_no})
             updated_transaction = result.fetchone()
             transaction = {
-                "OrgCode": updated_transaction["OrgCode"],
-                "HighwayCode": updated_transaction["HighwayCode"],
-                "PlazaCode": updated_transaction["PlazaCode"],
-                "SPID": updated_transaction["SPID"],
-                "RefNo": updated_transaction["RefNo"],
-                "Reason": updated_transaction["Reason"],
-                "TransactionDateTime": updated_transaction["TransactionDateTime"],
-                "ExitLocation": updated_transaction["ExitLocation"],
-                "TransactionAmount": updated_transaction["TransactionAmount"],
-                "ResponseCode": updated_transaction["ResponseCode"],
-                "ResponseDesc": updated_transaction["ResponseDesc"]
+                "OrgCode": updated_transaction[0],
+                "HighwayCode": updated_transaction[1],
+                "PlazaCode": updated_transaction[2],
+                "SPID": updated_transaction[3],
+                "RefNo": updated_transaction[4],
+                "Reason": updated_transaction[5],
+                "TransactionDateTime": updated_transaction[6],
+                "ExitLocation": updated_transaction[7],
+                "TransactionAmount": updated_transaction[8],
+                "ResponseCode": updated_transaction[9],
+                "ResponseDesc": updated_transaction[10]
             }
             return {"status": "success", "transaction": transaction}
     except Exception as e:
