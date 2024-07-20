@@ -410,7 +410,7 @@ def get_next_seqno(ref_no):
             return 1
         else:
             return result + 1
-        
+
 @transaction_api.route('/add_detail', methods=['POST'])
 def add_refund_ref_trx_detail():
     data = request.get_json()
@@ -428,13 +428,38 @@ def add_refund_ref_trx_detail():
     print("Insert query:", insert_query)
 
     try:
-        with db.engine.connect() as connection:
+        with db.engine.begin() as connection:  # Using `begin` to ensure transaction commit
             connection.execute(insert_query, data)
         print("Insert successful")
         return custom_response('success', 'Detail added successfully', {}, 201)
     except Exception as e:
         print(f"Insert error: {e}")
         return custom_response('failure', str(e), {}, 500)
+            
+# @transaction_api.route('/add_detail', methods=['POST'])
+# def add_refund_ref_trx_detail():
+#     data = request.get_json()
+#     data['seqno'] = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+#     data['updateby'] = 0
+#     data['responsedatetime'] = datetime.datetime.utcnow()
+
+#     insert_query = text('''
+#     INSERT INTO public."refund_reftrxdetails" ("orgcode", "highwaycode", "plazacode", "spid", "refno", "seqno", 
+#                                                "updateby", "codestatus", "reason", "responsedatetime")
+#     VALUES (:orgcode, :highwaycode, :plazacode, :spid, :refno, :seqno, :updateby, :codestatus, :reason, :responsedatetime)
+#     ''')
+
+#     print("Data to insert:", data)
+#     print("Insert query:", insert_query)
+
+#     try:
+#         with db.engine.connect() as connection:
+#             connection.execute(insert_query, data)
+#         print("Insert successful")
+#         return custom_response('success', 'Detail added successfully', {}, 201)
+#     except Exception as e:
+#         print(f"Insert error: {e}")
+#         return custom_response('failure', str(e), {}, 500)
 
 # Additional function to test database connection on the server
 @transaction_api.route('/test_db_connection', methods=['GET'])
