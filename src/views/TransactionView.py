@@ -417,7 +417,8 @@ def add_refund_ref_trx_detail():
     print(data)
     data['SeqNo'] = str(get_next_seqno(data['RefNo']))
     data['UpdateBy'] = 0
-    data['ResponseDateTime'] =  datetime.datetime.utcnow()
+    # data['ResponseDateTime'] =  datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    data['ResponseDateTime'] =  datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
     insert_query = text('''
     INSERT INTO public."Refund_RefTrxDetails" ("OrgCode", "HighwayCode", "PlazaCode", "SPID", "RefNo", "SeqNo", 
