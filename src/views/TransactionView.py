@@ -414,11 +414,12 @@ def get_next_seqno(ref_no):
 @transaction_api.route('/add_detail', methods=['POST'])
 def add_refund_ref_trx_detail():
     data = request.get_json()
-    print(data)
-    data['SeqNo'] = str(get_next_seqno(data['RefNo']))
+    # print(data)
+    # data['SeqNo'] = str(get_next_seqno(data['RefNo']))
+    data['SeqNo'] = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     data['UpdateBy'] = 0
-    # data['ResponseDateTime'] =  datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    data['ResponseDateTime'] =  datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    data['ResponseDateTime'] =  datetime.datetime.now()
+    # data['ResponseDateTime'] =  datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
     insert_query = text('''
     INSERT INTO public."Refund_RefTrxDetails" ("OrgCode", "HighwayCode", "PlazaCode", "SPID", "RefNo", "SeqNo", 
