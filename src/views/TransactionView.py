@@ -248,7 +248,7 @@ def get_transaction_by_refno(ref_no):
 #     query = text('''
 #     SELECT "OrgCode", "HighwayCode", "PlazaCode", "SPID", "RefNo", "SeqNo", "UpdateBy", 
 #            "CodeStatus", "Reason", "ResponseDateTime"
-#     FROM public."Refund_RefTrxDetails"
+#     FROM public."refund_reftrxdetails"
 #     WHERE "RefNo" = :ref_no
 #     ''')
     
@@ -273,12 +273,12 @@ def get_transaction_by_refno(ref_no):
 
 def get_refund_ref_trx_details(ref_no):
     query = text('''
-    SELECT d."OrgCode", d."HighwayCode", d."PlazaCode", d."SPID", d."RefNo", d."SeqNo", d."UpdateBy", 
-           d."CodeStatus", d."Reason", d."ResponseDateTime", r."ResponseDesc"
-    FROM public."Refund_RefTrxDetails" d
-    LEFT JOIN public."Mst_ResponseCode" r ON d."CodeStatus" = r."ResponseCode"
-    WHERE d."RefNo" = :ref_no
-    ORDER BY d."ResponseDateTime"
+    SELECT d."orgcode", d."highwaycode", d."plazacode", d."spid", d."refno", d."seqno", d."updateby", 
+           d."codestatus", d."reason", d."responsedatetime", r."ResponseDesc"
+    FROM public."refund_reftrxdetails" d
+    LEFT JOIN public."Mst_ResponseCode" r ON d."codestatus" = r."ResponseCode"
+    WHERE d."refno" = :ref_no
+    ORDER BY d."responsedatetime"
     ''')
     
     with db.engine.connect() as connection:
@@ -286,16 +286,16 @@ def get_refund_ref_trx_details(ref_no):
         details_list = []
         for row in result:
             detail = {
-                "OrgCode": row[0],
-                "HighwayCode": row[1],
-                "PlazaCode": row[2],
-                "SPID": row[3],
-                "RefNo": row[4],
-                "SeqNo": row[5],
-                "UpdateBy": row[6],
-                "CodeStatus": row[7],
-                "Reason": row[8],
-                "ResponseDateTime": row[9],
+                "orgcode": row[0],
+                "highwaycode": row[1],
+                "plazacode": row[2],
+                "spid": row[3],
+                "refno": row[4],
+                "seqno": row[5],
+                "updateby": row[6],
+                "codestatus": row[7],
+                "reason": row[8],
+                "responsedatetime": row[9],
                 "ResponseDesc": row[10]
             }
             details_list.append(detail)
@@ -319,7 +319,7 @@ def update_response_code(ref_no, response_code):
            r."ResponseCode", m."ResponseDesc", array_agg(d.*) as "Details"
     FROM public."Refund_RefTrx" r
     LEFT JOIN public."Mst_ResponseCode" m ON r."ResponseCode" = m."ResponseCode"
-    LEFT JOIN public."Refund_RefTrxDetails" d ON r."RefNo" = d."RefNo"
+    LEFT JOIN public."refund_reftrxdetails" d ON r."RefNo" = d."RefNo"
     WHERE r."RefNo" = :ref_no
     GROUP BY r."OrgCode", r."HighwayCode", r."PlazaCode", r."SPID", r."RefNo", r."Reason", r."VehicleNo", 
              r."RFIDTagNo", r."CardMfgno", r."VehicleColour", r."CarModel", r."CustomerName", r."CustomerSOFName]", 
@@ -400,7 +400,7 @@ def update_response():
 def get_next_seqno(ref_no):
     query = text('''
     SELECT MAX(CAST("SeqNo" AS INTEGER))
-    FROM public."Refund_RefTrxDetails"
+    FROM public."refund_reftrxdetails"
     WHERE "RefNo" = :ref_no
     ''')
     
@@ -416,31 +416,31 @@ def add_refund_ref_trx_detail():
     data = request.get_json()
     # print(data)
     # data['SeqNo'] = str(get_next_seqno(data['RefNo']))
-    data['SeqNo'] = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    data['UpdateBy'] = 0
-    data['ResponseDateTime'] =  datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    data['seqno'] = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    data['updateby'] = 0
+    data['responsedatetime'] =  datetime.datetime.utcnow()
     # data['ResponseDateTime'] =  datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
     insert_query = text('''
-    INSERT INTO public."Refund_RefTrxDetails" ("OrgCode", "HighwayCode", "PlazaCode", "SPID", "RefNo", "SeqNo", 
-                                               "UpdateBy", "CodeStatus", "Reason", "ResponseDateTime")
-    VALUES (:OrgCode, :HighwayCode, :PlazaCode, :SPID, :RefNo, :SeqNo, :UpdateBy, :CodeStatus, :Reason, :ResponseDateTime)
+    INSERT INTO public."refund_reftrxdetails" ("orgcode", "highwaycode", "plazacode", "spid", "refno", "seqno", 
+                                               "updateby", "codestatus", "reason", "responsedatetime")
+    VALUES (:orgcode, :highwaycode, :plazacode, :spid, :refno, :seqno, :updateby, :codestatus, :reason, :responsedatetime)
     ''')
 
     print(data)
     print(insert_query)
 
-    try:
-        with db.engine.connect() as connection:
-            connection.execute(insert_query, data)
-        return custom_response('success', 'Detail added successfully', {}, 201)
-    except Exception as e:
-        return custom_response('failure', str(e), {}, 500)
+    # try:
+    #     with db.engine.connect() as connection:
+    #         connection.execute(insert_query, data)
+    #     return custom_response('success', 'Detail added successfully', {}, 201)
+    # except Exception as e:
+    #     return custom_response('failure', str(e), {}, 500)
 
 
-    # with db.engine.connect() as connection:
-    #     connection.execute(insert_query, data)
-    # return custom_response('success', 'Detail added successfully', {}, 201)
+    with db.engine.connect() as connection:
+        connection.execute(insert_query, data)
+    return custom_response('success', 'Detail added successfully', {}, 201)
 
 def custom_response(status, errorMsg, data, status_code):
     """
