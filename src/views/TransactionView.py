@@ -418,7 +418,7 @@ def add_refund_ref_trx_detail():
     # data['SeqNo'] = str(get_next_seqno(data['RefNo']))
     data['SeqNo'] = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     data['UpdateBy'] = 0
-    data['ResponseDateTime'] =  datetime.datetime.now()
+    data['ResponseDateTime'] =  datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     # data['ResponseDateTime'] =  datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
     insert_query = text('''
