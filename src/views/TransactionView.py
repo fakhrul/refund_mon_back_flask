@@ -426,15 +426,21 @@ def add_refund_ref_trx_detail():
                                                "UpdateBy", "CodeStatus", "Reason", "ResponseDateTime")
     VALUES (:OrgCode, :HighwayCode, :PlazaCode, :SPID, :RefNo, :SeqNo, :UpdateBy, :CodeStatus, :Reason, :ResponseDateTime)
     ''')
-    # try:
-    #     with db.engine.connect() as connection:
-    #         connection.execute(insert_query, data)
-    #     return custom_response('success', 'Detail added successfully', {}, 201)
-    # except Exception as e:
-    #     return custom_response('failure', str(e), {}, 500)
-    with db.engine.connect() as connection:
-        connection.execute(insert_query, data)
-    return custom_response('success', 'Detail added successfully', {}, 201)
+
+    print(data)
+    print(insert_query)
+
+    try:
+        with db.engine.connect() as connection:
+            connection.execute(insert_query, data)
+        return custom_response('success', 'Detail added successfully', {}, 201)
+    except Exception as e:
+        return custom_response('failure', str(e), {}, 500)
+
+
+    # with db.engine.connect() as connection:
+    #     connection.execute(insert_query, data)
+    # return custom_response('success', 'Detail added successfully', {}, 201)
 
 def custom_response(status, errorMsg, data, status_code):
     """
