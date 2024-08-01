@@ -7,6 +7,9 @@ app = Flask(__name__)
 transaction_api = Blueprint('transaction_api', __name__)
 from sqlalchemy import text
 import datetime
+from ..shared.GMailing import GMailing
+
+mail = GMailing()
 
 @transaction_api.route('/', methods=['GET'])
 # @Auth.auth_required
@@ -396,6 +399,121 @@ def update_response():
         return custom_response('success', '', result['transaction'], 200)
     else:
         return custom_response('failure', result['message'], {}, 500)
+
+@transaction_api.route('/send_email/<email>', methods=['PUT'])
+def send_email(email):
+    transaction_data = request.get_json()
+    # Convert to text
+    text_content = f"""
+    Transaction Details:
+    - Transaction ID: {transaction_data['TransactionID']}
+    - Batch Reference Number: {transaction_data['BatchRefNo']}
+    - Transaction Date and Time: {transaction_data['TransactionDateTime']}
+    - Customer Name: {transaction_data['CustomerName']}
+    - Customer SOF Name: {transaction_data['CustomerSOFName']}
+    - Vehicle No.: {transaction_data['VehicleNo']}
+    - Vehicle Colour: {transaction_data['VehicleColour']}
+    - Car Model: {transaction_data['CarModel']}
+    - RFID Tag No.: {transaction_data['RFIDTagNo']}
+    - Reason: {transaction_data['Reason']}
+    - Refund Amount: {transaction_data['RefundAmount']}
+    - Total Refund Amount: {transaction_data['TotalRefundAmount']}
+    - Refund Status: {transaction_data['RefundStatus']}
+    - Response Code: {transaction_data['ResponseCode']}
+    - Response Description: {transaction_data['ResponseDesc']}
+    - Transaction Amount: {transaction_data['TransactionAmount']}
+    - Highway Code: {transaction_data['HighwayCode']}
+    - Service Provider ID (SPID): {transaction_data['SPID']}
+    - Entry Location: {transaction_data['EntryLocation']}
+    - Entry Service Provider Name: {transaction_data['EntrySPName']}
+    - Exit Location: {transaction_data['ExitLocation']}
+    - Exit Service Provider Name: {transaction_data['ExitSPName']}
+    - Plaza Code: {transaction_data['PlazaCode']}
+    - Organization Code (OrgCode): {transaction_data['OrgCode']}
+
+    Date and Time Fields:
+    - Invoice Date and Time: {transaction_data['InvoiceDateTime']}
+    - Payment Date and Time: {transaction_data['PaymentDateTime']}
+    - Received Date and Time: {transaction_data['ReceivedDateTime']}
+    - Remark Date and Time: {transaction_data['RemarkDateTime']}
+    - Response Date and Time: {transaction_data['ResponseDateTime']}
+    - Tng Payment Date and Time: {transaction_data['TngPaymentDateTime']}
+
+    Additional Information:
+    - Actual Entry Class Vehicle: {transaction_data['ActualEntryClassVehicle']}
+    - Actual Entry Lane: {transaction_data['ActualEntryLane']}
+    - Actual Entry Plaza: {transaction_data['ActualEntryPlaza']}
+    - Actual Exit Class Vehicle: {transaction_data['ActualExitClassVehicle']}
+    - Actual Exit Lane: {transaction_data['ActualExitLane']}
+    - Actual Exit Plaza: {transaction_data['ActualExitPlaza']}
+    - Actual Fare: {transaction_data['ActualFare']}
+    - Additional Info: {transaction_data['AdditionalInfo']}
+    - Verify: {transaction_data['Verify']}
+    - Service Provider Reason: {transaction_data['SPReason']}
+    - Service Provider Reason Code: {transaction_data['SPReasonCode']}
+    """
+
+
+    # Convert to HTML
+    html_content = f"""
+    <html>
+    <body>
+        <h2>Transaction Details</h2>
+        <ul>
+            <li><strong>Transaction ID:</strong> {transaction_data['TransactionID']}</li>
+            <li><strong>Batch Reference Number:</strong> {transaction_data['BatchRefNo']}</li>
+            <li><strong>Transaction Date and Time:</strong> {transaction_data['TransactionDateTime']}</li>
+            <li><strong>Customer Name:</strong> {transaction_data['CustomerName']}</li>
+            <li><strong>Customer SOF Name:</strong> {transaction_data['CustomerSOFName']}</li>
+            <li><strong>Vehicle No.:</strong> {transaction_data['VehicleNo']}</li>
+            <li><strong>Vehicle Colour:</strong> {transaction_data['VehicleColour']}</li>
+            <li><strong>Car Model:</strong> {transaction_data['CarModel']}</li>
+            <li><strong>RFID Tag No.:</strong> {transaction_data['RFIDTagNo']}</li>
+            <li><strong>Reason:</strong> {transaction_data['Reason']}</li>
+            <li><strong>Refund Amount:</strong> {transaction_data['RefundAmount']}</li>
+            <li><strong>Total Refund Amount:</strong> {transaction_data['TotalRefundAmount']}</li>
+            <li><strong>Refund Status:</strong> {transaction_data['RefundStatus']}</li>
+            <li><strong>Response Code:</strong> {transaction_data['ResponseCode']}</li>
+            <li><strong>Response Description:</strong> {transaction_data['ResponseDesc']}</li>
+            <li><strong>Transaction Amount:</strong> {transaction_data['TransactionAmount']}</li>
+            <li><strong>Highway Code:</strong> {transaction_data['HighwayCode']}</li>
+            <li><strong>Service Provider ID (SPID):</strong> {transaction_data['SPID']}</li>
+            <li><strong>Entry Location:</strong> {transaction_data['EntryLocation']}</li>
+            <li><strong>Entry Service Provider Name:</strong> {transaction_data['EntrySPName']}</li>
+            <li><strong>Exit Location:</strong> {transaction_data['ExitLocation']}</li>
+            <li><strong>Exit Service Provider Name:</strong> {transaction_data['ExitSPName']}</li>
+            <li><strong>Plaza Code:</strong> {transaction_data['PlazaCode']}</li>
+            <li><strong>Organization Code (OrgCode):</strong> {transaction_data['OrgCode']}</li>
+        </ul>
+        <h3>Date and Time Fields</h3>
+        <ul>
+            <li><strong>Invoice Date and Time:</strong> {transaction_data['InvoiceDateTime']}</li>
+            <li><strong>Payment Date and Time:</strong> {transaction_data['PaymentDateTime']}</li>
+            <li><strong>Received Date and Time:</strong> {transaction_data['ReceivedDateTime']}</li>
+            <li><strong>Remark Date and Time:</strong> {transaction_data['RemarkDateTime']}</li>
+            <li><strong>Response Date and Time:</strong> {transaction_data['ResponseDateTime']}</li>
+            <li><strong>Tng Payment Date and Time:</strong> {transaction_data['TngPaymentDateTime']}</li>
+        </ul>
+        <h3>Additional Information</h3>
+        <ul>
+            <li><strong>Actual Entry Class Vehicle:</strong> {transaction_data['ActualEntryClassVehicle']}</li>
+            <li><strong>Actual Entry Lane:</strong> {transaction_data['ActualEntryLane']}</li>
+            <li><strong>Actual Entry Plaza:</strong> {transaction_data['ActualEntryPlaza']}</li>
+            <li><strong>Actual Exit Class Vehicle:</strong> {transaction_data['ActualExitClassVehicle']}</li>
+            <li><strong>Actual Exit Lane:</strong> {transaction_data['ActualExitLane']}</li>
+            <li><strong>Actual Exit Plaza:</strong> {transaction_data['ActualExitPlaza']}</li>
+            <li><strong>Actual Fare:</strong> {transaction_data['ActualFare']}</li>
+            <li><strong>Additional Info:</strong> {transaction_data['AdditionalInfo']}</li>
+            <li><strong>Verify:</strong> {transaction_data['Verify']}</li>
+            <li><strong>Service Provider Reason:</strong> {transaction_data['SPReason']}</li>
+            <li><strong>Service Provider Reason Code:</strong> {transaction_data['SPReasonCode']}</li>
+        </ul>
+    </body>
+    </html>
+    """    
+    mail.send([email],'E-Refund Monitoring Info', text=text_content, html= html_content )    
+    return custom_response('success', '', '', 200)
+
 
 def get_next_seqno(ref_no):
     query = text('''
